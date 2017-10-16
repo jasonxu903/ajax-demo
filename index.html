@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AJAX-DEMO</title>
+    <style>
+        #newsCt {
+            list-style: none;
+            padding: 0;
+        }
+        #newsCt > li {
+            margin: 5px 10px;
+            padding: 5px 10px;
+            border: 1px solid #000;
+            font-size: 16px;
+            font-weight: bolder;
+        }
+        #btn {
+            display: block;
+            margin: 10px auto;
+            padding: 5px 15px;
+            outline: none;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: #0F7A45;
+            color: #0F7A45;
+            background: #FFF;
+            font-size: 20px;
+        }
+        #btn:hover {
+            color: #FFF;
+            background: #0F7A45;
+        }
+    </style>
+</head>
+<body>
+<ul id="newsCt">
+</ul>
+<button id="btn">加载更多</button>
+
+<script>
+    var newsCt = document.querySelector('#newsCt')
+    var btn = document.querySelector('#btn')
+    var fragment = document.createDocumentFragment()
+
+    var newsIndex = 1
+
+    var isDataArrive = true
+
+    btn.addEventListener('click', function () {
+        if(!isDataArrive){
+            return
+        }
+
+        var xhr = new XMLHttpRequest()
+
+        xhr.open('GET', '/news-list?index='+newsIndex+'&length=5', true)
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4){
+                if ((xhr.status >= 200 && xhr.status < 300) ||
+                    xhr.status === 304){
+                    var newsData = JSON.parse(xhr.responseText)
+                    for (var i = 0; i < newsData.length; i++){
+                        var li = document.createElement('li')
+                        li.innerText = '新闻 ' + newsData[i]
+                        fragment.appendChild(li)
+                    }
+                    newsCt.appendChild(fragment)
+                    newsIndex += 5
+                }else {
+                    console.log('fail')
+                }
+                isDataArrive = true
+            }
+        }
+
+        xhr.send()
+        isDataArrive = false
+        return xhr
+    })
+</script>
+</body>
+</html>
